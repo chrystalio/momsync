@@ -1,10 +1,13 @@
 import {
     type ColumnDef,
+    type PaginationState,
     type SortingState,
     createColumnHelper,
     createCoreRowModel,
+    createPaginatedRowModel,
     createSortedRowModel,
     flexRender,
+    rowPaginationFeature,
     rowSortingFeature,
     sortFn_basic,
     sortFn_datetime,
@@ -14,6 +17,8 @@ import {
 } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
+import { DataTablePagination } from '@/components/data-table-pagination';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -31,7 +36,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 
 type Reading = {
     id: string;
@@ -52,6 +56,8 @@ type Props = {
 
 const features = tableFeatures({
     coreRowModel: createCoreRowModel(),
+    paginatedRowModel: createPaginatedRowModel(),
+    rowPaginationFeature,
     rowSortingFeature,
     sortedRowModel: createSortedRowModel(),
     sortFns: {
@@ -190,6 +196,10 @@ export default function GlucoseReadingTable({
     const [sorting, setSorting] = useState<SortingState>([
         { id: 'measured_at', desc: true },
     ]);
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    });
 
     const contextLabels: Record<string, string> = Object.fromEntries(
         contexts.map((c) => [c.value, c.label]),
@@ -199,56 +209,65 @@ export default function GlucoseReadingTable({
         features,
         data: readings,
         columns,
-        state: { sorting },
+        state: { sorting, pagination },
         onSortingChange: setSorting,
+        onPaginationChange: setPagination,
         meta: { contexts: contextLabels, onEdit, onDelete },
     });
 
     return (
-        <div className="overflow-hidden rounded-md border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext(),
-                                          )}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow key={row.id}>
-                                {row.getAllCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext(),
-                                        )}
-                                    </TableCell>
+        <div className="space-y-2">
+            <div className="overflow-hidden rounded-md border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext(),
+                                              )}
+                                    </TableHead>
                                 ))}
                             </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell
-                                colSpan={columns.length}
-                                className="h-24 text-center"
-                            >
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow key={row.id}>
+                                    {row.getAllCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext(),
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                >
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+            <DataTablePagination
+                table={table}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+            />
         </div>
     );
 }
