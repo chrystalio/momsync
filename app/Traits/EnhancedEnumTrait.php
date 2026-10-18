@@ -14,7 +14,7 @@ trait EnhancedEnumTrait
      * Find a case by its declared name and return its backing value.
      *
      * @param  string  $name  case name as declared (e.g. 'Fasting'), not the backing value
-     * @return string|int|null  backing value, or null if no case with that name exists
+     * @return string|int|null backing value, or null if no case with that name exists
      */
     public static function fromName(string $name): string|int|null
     {
