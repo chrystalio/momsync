@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReadingContextEnum;
-use App\Http\Requests\GlucoseReading\StoreGlucoseReadingRequest;
+use App\Http\Requests\GlucoseReading\GlucoseReadingRequest;
 use App\Models\GlucoseReading;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -21,7 +21,7 @@ class GlucoseReadingController extends Controller
         ]);
     }
 
-    public function store(StoreGlucoseReadingRequest $request): RedirectResponse
+    public function store(GlucoseReadingRequest $request): RedirectResponse
     {
         GlucoseReading::create($request->validated());
 
@@ -30,7 +30,7 @@ class GlucoseReadingController extends Controller
         return redirect()->route('glucose-readings.index');
     }
 
-    public function update(StoreGlucoseReadingRequest $request, GlucoseReading $reading): RedirectResponse
+    public function update(GlucoseReadingRequest $request, GlucoseReading $reading): RedirectResponse
     {
         $reading->update($request->validated());
 
