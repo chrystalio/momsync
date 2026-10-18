@@ -1,4 +1,4 @@
-import AppearanceToggleTab from '@/components/appearance-tabs';
+import AppearanceToggle from '@/components/appearance-toggle';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
@@ -15,7 +15,7 @@ export function AppSidebarHeader({
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
             <div className="ml-auto">
-                <AppearanceToggleTab />
+                <AppearanceToggle />
             </div>
         </header>
     );
