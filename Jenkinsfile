@@ -11,14 +11,18 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+                script {
+                    dockerImage = docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}", "-t ${IMAGE_NAME}:latest .")
+                }
             }
         }
 
         stage('Push') {
             steps {
-                sh 'docker push ${IMAGE_NAME}:latest'
-                sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+                script {
+                    dockerImage.push('latest')
+                    dockerImage.push("${env.BUILD_NUMBER}")
+                }
             }
         }
 
@@ -53,10 +57,10 @@ pipeline {
 
     post {
         success {
-            echo "Deployed ${APP_NAME} build #${BUILD_NUMBER} to ${TARGET_NODE}"
+            echo "Deployed ${APP_NAME} build #${env.BUILD_NUMBER} to ${TARGET_NODE}"
         }
         failure {
-            echo "Deploy failed for ${APP_NAME} build #${BUILD_NUMBER}"
+            echo "Deploy failed for ${APP_NAME} build #${env.BUILD_NUMBER}"
         }
     }
 }
