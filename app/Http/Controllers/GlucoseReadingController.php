@@ -6,18 +6,32 @@ use App\Enums\ReadingContextEnum;
 use App\Http\Requests\GlucoseReading\GlucoseReadingRequest;
 use App\Models\GlucoseReading;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class GlucoseReadingController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $filters = $request->validate([
+            'from_date' => ['nullable', 'date'],
+            'reading_context' => ['nullable', Rule::enum(ReadingContextEnum::class)],
+        ]);
+
+        $readings = GlucoseReading::query()
+            ->when($filters['from_date'] ?? null, fn ($q, string $date) => $q->whereDate('measured_at', '>=', $date))
+            ->when($filters['reading_context'] ?? null, fn ($q, string $context) => $q->where('reading_context', $context))
+            ->orderBy('measured_at', 'desc')
+            ->get();
+
         return Inertia::render('GlucoseReadings/Index', [
-            'readings' => GlucoseReading::orderBy('measured_at', 'desc')->get(),
+            'readings' => $readings,
             'contexts' => collect(ReadingContextEnum::cases())
                 ->map(fn (ReadingContextEnum $c) => ['value' => $c->value, 'label' => $c->readableText()])
                 ->all(),
+            'filters' => $filters,
         ]);
     }
 

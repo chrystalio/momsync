@@ -93,6 +93,53 @@ it('passes all five contexts to the index page', function () {
         );
 });
 
+it('filters readings by reading_context', function () {
+    $user = User::factory()->create();
+    GlucoseReading::factory()->create(['reading_context' => 'fasting']);
+    GlucoseReading::factory()->create(['reading_context' => 'bedtime']);
+
+    $this->actingAs($user)
+        ->get(route('glucose-readings.index', ['reading_context' => 'fasting']))
+        ->assertInertia(fn ($page) => $page
+            ->component('GlucoseReadings/Index')
+            ->where('filters.reading_context', 'fasting')
+            ->has('readings', 1)
+        );
+});
+
+it('filters readings by from_date', function () {
+    $user = User::factory()->create();
+    GlucoseReading::factory()->create(['measured_at' => now()->subDays(2)]);
+    GlucoseReading::factory()->create(['measured_at' => now()->subDays(20)]);
+
+    $this->actingAs($user)
+        ->get(route('glucose-readings.index', ['from_date' => now()->subDays(7)->toDateString()]))
+        ->assertInertia(fn ($page) => $page
+            ->component('GlucoseReadings/Index')
+            ->has('readings', 1)
+        );
+});
+
+it('rejects an unknown reading_context filter', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('glucose-readings.index', ['reading_context' => 'mystery']))
+        ->assertSessionHasErrors('reading_context');
+});
+
+it('paginates readings on the client', function () {
+    $user = User::factory()->create();
+    GlucoseReading::factory()->count(20)->create();
+
+    $this->actingAs($user)
+        ->get(route('glucose-readings.index'))
+        ->assertInertia(fn ($page) => $page
+            ->component('GlucoseReadings/Index')
+            ->has('readings', 20)
+        );
+});
+
 it('updates a reading', function () {
     Carbon::setTestNow('2026-10-18 12:00:00');
     $user = User::factory()->create();
