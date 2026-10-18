@@ -17,12 +17,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::post('webhooks/telegram', [TelegramWebhookController::class, 'handle'])
-    ->middleware([
-        \Illuminate\Cookie\Middleware\EncryptCookies::class,
-        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-    ])
+    ->withoutMiddleware('web')
+    ->middleware([\Illuminate\Routing\Middleware\SubstituteBindings::class])
     ->name('webhooks.telegram');
 
 require __DIR__.'/settings.php';
