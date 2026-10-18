@@ -12,7 +12,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def dockerImage = docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}", "-t ${IMAGE_NAME}:latest .")
+                    docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}", "-t ${IMAGE_NAME}:latest .")
                 }
             }
         }
@@ -21,8 +21,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') {
-                        dockerImage.push('latest')
-                        dockerImage.push("${env.BUILD_NUMBER}")
+                        docker.image("${IMAGE_NAME}:latest").push()
+                        docker.image("${IMAGE_NAME}:${env.BUILD_NUMBER}").push()
                     }
                 }
             }
