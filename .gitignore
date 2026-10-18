@@ -43,3 +43,9 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 /docs
+
+# Root-level only — public/frankenphp-worker.php is the FrankenPHP Octane worker
+# and MUST be committed (it's the file Octane execs in each request)
+/caddy
+/frankenphp
+/frankenphp-worker.php
