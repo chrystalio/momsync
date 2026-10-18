@@ -27,6 +27,13 @@ echo "MySQL is up."
 # Run migrations on first boot (and on every redeploy — migrations are idempotent)
 php artisan migrate --force --no-interaction
 
+# Clear the config cache so runtime env vars (e.g. OCTANE_STATE_FILE) take effect.
+# The Dockerfile's `php artisan optimize` step caches config at build time with
+# the build-time env; without this clear, runtime env changes are ignored and
+# Octane's state-file write can fail because the cached path doesn't match
+# the actual filesystem layout.
+php artisan config:clear
+
 # Start supercronic in the background — it manages the Laravel scheduler
 supercronic /etc/crontab &
 
