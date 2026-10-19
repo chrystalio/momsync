@@ -28,7 +28,9 @@ export function usePersistedState<T>(
     key: string,
     fallback: T,
 ): readonly [T, Dispatch<SetStateAction<T>>] {
-    const [value, setInnerValue] = useState<T>(() => readStorage(key, fallback));
+    const [value, setInnerValue] = useState<T>(() =>
+        readStorage(key, fallback),
+    );
 
     useEffect(() => {
         writeStorage(key, value);
