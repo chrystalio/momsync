@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\GlucoseReadingController;
 use App\Http\Controllers\Webhooks\TelegramWebhookController;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -18,7 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::post('webhooks/telegram', [TelegramWebhookController::class, 'handle'])
     ->withoutMiddleware('web')
-    ->middleware([\Illuminate\Routing\Middleware\SubstituteBindings::class])
+    ->middleware([SubstituteBindings::class])
     ->name('webhooks.telegram');
 
 require __DIR__.'/settings.php';
