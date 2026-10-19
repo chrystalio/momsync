@@ -15,11 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Kristoff',
+            'email' => 'kristoff@momsync.krisdev.my.id',
+            'password' => bcrypt('admin123'),
         ]);
+
+        $this->call(GlucoseReadingSeeder::class);
     }
 }

@@ -4,48 +4,58 @@ namespace Database\Seeders;
 
 use App\Enums\ReadingContextEnum;
 use App\Models\GlucoseReading;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class GlucoseReadingSeeder extends Seeder
 {
     /**
-     * Seed 30 days of glucose readings — roughly three per day, with glucose
-     * levels and times-of-day chosen to be plausible for each context.
+     * Real glucose readings dated October 2026. measured_at is randomized within
+     * a 15-minute morning window (05:45–06:00). All entries are fasting readings.
      *
      * Run with: php artisan db:seed --class=GlucoseReadingSeeder
      */
     public function run(): void
     {
-        GlucoseReading::query()->delete();
+        DB::transaction(function (): void {
+            GlucoseReading::query()->delete();
 
-        $now = now();
-        $profiles = [
-            'fasting' => ['hour' => 7, 'min' => 60, 'max' => 105],
-            'before_meal' => ['hour' => 12, 'min' => 80, 'max' => 130],
-            'after_meal' => ['hour' => 13, 'min' => 110, 'max' => 190],
-            'bedtime' => ['hour' => 22, 'min' => 100, 'max' => 150],
-            'random' => ['hour' => 16, 'min' => 85, 'max' => 170],
-        ];
+            $readings = [
+                '1/10' => 210,
+                '2/10' => 299,
+                '3/10' => 210,
+                '4/10' => 111,
+                '5/10' => 237,
+                '6/10' => 179,
+                '7/10' => 163,
+                '8/10' => 192,
+                '9/10' => 152,
+                '10/10' => 78,
+                '11/10' => 204,
+                '12/10' => 297,
+                '13/10' => 331,
+                '14/10' => 311,
+                '15/10' => 218,
+                '16/10' => 305,
+                '17/10' => 287,
+                '18/10' => 344,
+                '19/10' => 335,
+            ];
 
-        for ($day = 29; $day >= 0; $day--) {
-            $date = $now->copy()->subDays($day);
-            $picks = (array) array_rand($profiles, random_int(2, 3));
+            foreach ($readings as $date => $level) {
+                [$day, $month] = explode('/', $date);
 
-            foreach ($picks as $value) {
-                $context = ReadingContextEnum::from($value);
-                $profile = $profiles[$value];
+                $measuredAt = Carbon::create(2026, (int) $month, (int) $day, 5, 45, 0)
+                    ->addSeconds(random_int(0, 900));
 
                 GlucoseReading::create([
-                    'glucose_level' => random_int($profile['min'], $profile['max']),
-                    'measured_at' => $date->copy()->setTime(
-                        $profile['hour'],
-                        random_int(0, 59),
-                    ),
-                    'reading_context' => $context,
-                    'notes' => null,
+                    'glucose_level' => $level,
+                    'measured_at' => $measuredAt,
+                    'reading_context' => ReadingContextEnum::Fasting,
                     'source' => 'web',
                 ]);
             }
-        }
+        });
     }
 }
