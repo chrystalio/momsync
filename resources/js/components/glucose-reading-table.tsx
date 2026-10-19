@@ -126,7 +126,10 @@ const columns = [
         sortFn: 'text',
         cell: ({ getValue, table }) => {
             const value = getValue();
-            const label = table.options.meta.contexts[value] ?? value;
+            const meta = table.options.meta as {
+                contexts: Record<string, string>;
+            };
+            const label = meta.contexts[value] ?? value;
             return <Badge variant="secondary">{label}</Badge>;
         },
     }),

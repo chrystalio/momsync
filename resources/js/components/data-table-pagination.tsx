@@ -1,4 +1,3 @@
-import type { Table } from '@tanstack/react-table';
 import type { PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,19 +8,27 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-type DataTablePaginationProps<TData> = {
-    table: Table<any, any, TData>;
+type PaginatedTable = {
+    getPageCount(): number;
+    previousPage(): void;
+    nextPage(): void;
+    getCanPreviousPage(): boolean;
+    getCanNextPage(): boolean;
+};
+
+type DataTablePaginationProps = {
+    table: PaginatedTable;
     pagination: PaginationState;
     onPaginationChange: (
         updater: PaginationState | ((old: PaginationState) => PaginationState),
     ) => void;
 };
 
-export function DataTablePagination<TData>({
+export function DataTablePagination({
     table,
     pagination,
     onPaginationChange,
-}: DataTablePaginationProps<TData>) {
+}: DataTablePaginationProps) {
     const { pageIndex, pageSize } = pagination;
     const pageCount = table.getPageCount();
 
