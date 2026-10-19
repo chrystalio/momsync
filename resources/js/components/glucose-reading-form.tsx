@@ -21,6 +21,11 @@ type Props = {
     onCancel?: () => void;
 };
 
+function localDatetimeLocal(d: Date = new Date()): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function GlucoseReadingForm({
     reading = null,
     contexts,
@@ -33,7 +38,7 @@ export default function GlucoseReadingForm({
 
     const initialMeasuredAt = reading
         ? reading.measured_at.substring(0, 16)
-        : new Date().toISOString().substring(0, 16);
+        : localDatetimeLocal();
 
     return (
         <Form {...action} className="space-y-6">

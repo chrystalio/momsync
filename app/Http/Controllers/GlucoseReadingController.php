@@ -24,7 +24,13 @@ class GlucoseReadingController extends Controller
             ->when($filters['from_date'] ?? null, fn ($q, string $date) => $q->whereDate('measured_at', '>=', $date))
             ->when($filters['reading_context'] ?? null, fn ($q, string $context) => $q->where('reading_context', $context))
             ->orderBy('measured_at', 'desc')
-            ->get();
+            ->get()
+            ->map(fn (GlucoseReading $reading) => [
+                ...$reading->toArray(),
+                'measured_at' => $reading->measured_at
+                    ->setTimezone('Asia/Jakarta')
+                    ->format('Y-m-d\TH:i:sP'),
+            ]);
 
         return Inertia::render('GlucoseReadings/Index', [
             'readings' => $readings,
