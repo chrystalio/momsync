@@ -16,8 +16,8 @@ import {
     useTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
 import { DataTablePagination } from '@/components/data-table-pagination';
+import { usePersistedState } from '@/hooks/use-persisted-state';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -90,7 +90,7 @@ function SortableHeader({
             variant="ghost"
             size="sm"
             className="-ml-2 h-8"
-            onClick={() => column.toggleSorting(sorted === 'asc')}
+            onClick={() => column.toggleSorting()}
         >
             {label}
             <ArrowUpDown
@@ -193,13 +193,14 @@ export default function GlucoseReadingTable({
     onEdit,
     onDelete,
 }: Props) {
-    const [sorting, setSorting] = useState<SortingState>([
-        { id: 'measured_at', desc: true },
-    ]);
-    const [pagination, setPagination] = useState<PaginationState>({
-        pageIndex: 0,
-        pageSize: 10,
-    });
+    const [sorting, setSorting] = usePersistedState<SortingState>(
+        'glucose-readings:sorting',
+        [{ id: 'measured_at', desc: true }],
+    );
+    const [pagination, setPagination] = usePersistedState<PaginationState>(
+        'glucose-readings:pagination',
+        { pageIndex: 0, pageSize: 10 },
+    );
 
     const contextLabels: Record<string, string> = Object.fromEntries(
         contexts.map((c) => [c.value, c.label]),
@@ -209,6 +210,7 @@ export default function GlucoseReadingTable({
         features,
         data: readings,
         columns,
+        enableSortingRemoval: false,
         state: { sorting, pagination },
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
